@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClippyJS TypeScript - Vanilla Example</title>
+    <link rel="stylesheet" href="../../assets/clippy.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button.secondary {
+            background: #2196F3;
+        }
+
+        button.secondary:hover {
+            background: #0b7dda;
+        }
+
+        .agent-select {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .animations-list {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .animations-list button {
+            margin: 5px;
+            padding: 8px 15px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 ClippyJS TypeScript - Demo Vanilla</h1>
+
+        <div>
+            <label for="agent-select">Sélectionner un agent :</label>
+            <select id="agent-select" class="agent-select">
+                <option value="Clippy">Clippy (Trombone)</option>
+                <option value="Merlin">Merlin (Magicien)</option>
+                <option value="Bonzi">Bonzi (Singe)</option>
+                <option value="F1">F1 (Robot)</option>
+                <option value="Genie">Genie (Génie)</option>
+                <option value="Genius">Genius (Einstein)</option>
+                <option value="Links">Links (Chat)</option>
+                <option value="Peedy">Peedy (Perroquet)</option>
+                <option value="Rocky">Rocky (Chien)</option>
+                <option value="Rover">Rover (Chien rouge)</option>
+            </select>
+        </div>
+
+        <div class="controls">
+            <button onclick="app.loadSelectedAgent()">Charger Agent</button>
+            <button onclick="app.show()">Afficher</button>
+            <button onclick="app.hide()">Cacher</button>
+            <button onclick="app.speak()">Parler</button>
+            <button class="secondary" onclick="app.animate()">Animer</button>
+            <button class="secondary" onclick="app.move()">Déplacer</button>
+            <button class="secondary" onclick="app.startTips()">Tips Auto</button>
+            <button class="secondary" onclick="app.stopTips()">Stop Tips</button>
+        </div>
+
+        <div class="status" id="status">Initialisation...</div>
+
+        <div id="animations-container"></div>
+    </div>
+
+    <!-- Import TypeScript module (will be built) -->
+    <script type="module">
+        // NOTE: This would import from the built dist/
+        // For now we'll simulate the API structure
+
+        // Simulated ClippyPlugin interface
+        class App {
+            constructor() {
+                this.clippy = null;
+                this.tipsInterval = null;
+                this.init();
+            }
+
+            updateStatus(message, isError = false) {
+                const status = document.getElementById('status');
+                status.textContent = message;
+                status.style.background = isError
+                    ? 'rgba(255, 0, 0, 0.3)'
+                    : 'rgba(0, 0, 0, 0.3)';
+            }
+
+            async init() {
+                try {
+                    this.updateStatus('Chargement du système...');
+
+                    // Import the plugin (assuming it's built)
+                    // const { ClippyPlugin } = await import('../../dist/plugin/index.js');
+
+                    // For demo, we'll use the unpkg version
+                    this.updateStatus('Prêt ! Sélectionnez un agent et cliquez sur "Charger Agent"');
+                } catch (error) {
+                    this.updateStatus('Erreur: ' + error.message, true);
+                }
+            }
+
+            async loadSelectedAgent() {
+                const select = document.getElementById('agent-select');
+                const agentName = select.value;
+
+                try {
+                    this.updateStatus(`Chargement de ${agentName}...`);
+
+                    // Using the old clippy API for compatibility
+                    if (typeof clippy !== 'undefined') {
+                        clippy.load(agentName, (agent) => {
+                            this.clippy = agent;
+                            agent.show();
+                            agent.moveTo(300, 300);
+                            agent.speak(`Je suis ${agentName} !`);
+
+                            this.updateStatus(`${agentName} chargé avec succès !`);
+                            this.displayAnimations(agent.animations());
+                        }, null, '../../assets/agents/');
+                    } else {
+                        this.updateStatus('ClippyJS non disponible', true);
+                    }
+                } catch (error) {
+                    this.updateStatus('Erreur: ' + error.message, true);
+                }
+            }
+
+            displayAnimations(animations) {
+                const container = document.getElementById('animations-container');
+                container.innerHTML = '<div class="animations-list"><h3>Animations disponibles :</h3></div>';
+                const list = container.querySelector('.animations-list');
+
+                animations.forEach(anim => {
+                    const btn = document.createElement('button');
+                    btn.textContent = anim;
+                    btn.className = 'secondary';
+                    btn.onclick = () => this.playAnimation(anim);
+                    list.appendChild(btn);
+                });
+            }
+
+            playAnimation(name) {
+                if (this.clippy) {
+                    this.clippy.play(name);
+                    this.updateStatus(`Animation: ${name}`);
+                }
+            }
+
+            async show() {
+                if (this.clippy) {
+                    this.clippy.show();
+                    this.updateStatus('Agent affiché');
+                } else {
+                    this.updateStatus('Chargez d\'abord un agent', true);
+                }
+            }
+
+            async hide() {
+                if (this.clippy) {
+                    this.clippy.hide();
+                    this.updateStatus('Agent caché');
+                }
+            }
+
+            async speak() {
+                if (this.clippy) {
+                    const messages = [
+                        'Bonjour ! Comment puis-je vous aider ?',
+                        'Saviez-vous que je suis codé en TypeScript maintenant ?',
+                        'N\'oubliez pas de sauvegarder votre travail !',
+                        'C\'est une belle journée pour coder !',
+                    ];
+                    const msg = messages[Math.floor(Math.random() * messages.length)];
+                    this.clippy.speak(msg);
+                    this.updateStatus('Agent parle...');
+                } else {
+                    this.updateStatus('Chargez d\'abord un agent', true);
+                }
+            }
+
+            async animate() {
+                if (this.clippy) {
+                    this.clippy.animate();
+                    this.updateStatus('Animation aléatoire...');
+                } else {
+                    this.updateStatus('Chargez d\'abord un agent', true);
+                }
+            }
+
+            async move() {
+                if (this.clippy) {
+                    const x = Math.random() * (window.innerWidth - 200);
+                    const y = Math.random() * (window.innerHeight - 200);
+                    this.clippy.moveTo(x, y);
+                    this.updateStatus(`Déplacement vers (${Math.floor(x)}, ${Math.floor(y)})`);
+                } else {
+                    this.updateStatus('Chargez d\'abord un agent', true);
+                }
+            }
+
+            startTips() {
+                if (!this.clippy) {
+                    this.updateStatus('Chargez d\'abord un agent', true);
+                    return;
+                }
+
+                const tips = [
+                    'Pensez à faire une pause !',
+                    'Hydratez-vous régulièrement !',
+                    'N\'oubliez pas de commit votre code !',
+                    'Les tests sont vos amis !',
+                ];
+
+                this.tipsInterval = setInterval(() => {
+                    if (this.clippy) {
+                        const tip = tips[Math.floor(Math.random() * tips.length)];
+                        this.clippy.speak(tip);
+                        this.clippy.animate();
+                    }
+                }, 15000);
+
+                this.updateStatus('Tips automatiques activés (toutes les 15s)');
+            }
+
+            stopTips() {
+                if (this.tipsInterval) {
+                    clearInterval(this.tipsInterval);
+                    this.tipsInterval = null;
+                    this.updateStatus('Tips automatiques désactivés');
+                }
+            }
+        }
+
+        // Create global app instance
+        window.app = new App();
+    </script>
+
+    <!-- Fallback to CDN version -->
+    <script src="https://unpkg.com/jquery@3.2.1"></script>
+    <script src="https://unpkg.com/clippyjs@latest"></script>
+</body>
+</html>
