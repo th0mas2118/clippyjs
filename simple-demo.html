@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClippyJS - Démo Simple</title>
+
+    <!-- Clippy CSS -->
+    <link rel="stylesheet" type="text/css" href="https://gitcdn.xyz/repo/pi0/clippyjs/master/assets/clippy.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button.secondary {
+            background: #2196F3;
+        }
+
+        button.secondary:hover {
+            background: #0b7dda;
+        }
+
+        .info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .agent-selector {
+            margin: 10px 0;
+        }
+
+        select {
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎉 ClippyJS - Démo Simple</h1>
+
+    <div class="controls">
+        <h2>Contrôles</h2>
+
+        <div class="agent-selector">
+            <label for="agent-select">Choisir un agent:</label>
+            <select id="agent-select">
+                <option value="Clippy">Clippy (le trombone)</option>
+                <option value="Merlin">Merlin (le magicien)</option>
+                <option value="Bonzi">Bonzi (le singe violet)</option>
+                <option value="F1">F1 (le robot)</option>
+                <option value="Genie">Genie (le génie)</option>
+                <option value="Genius">Genius (Einstein)</option>
+                <option value="Links">Links (le chat)</option>
+                <option value="Peedy">Peedy (le perroquet)</option>
+                <option value="Rocky">Rocky (le chien)</option>
+                <option value="Rover">Rover (le chien rouge)</option>
+            </select>
+            <button onclick="loadSelectedAgent()">Charger l'agent</button>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <button onclick="showAgent()">Afficher</button>
+            <button onclick="hideAgent()">Cacher</button>
+            <button onclick="speakAgent()">Parler</button>
+            <button class="secondary" onclick="animateAgent()">Animation aléatoire</button>
+            <button class="secondary" onclick="moveAgent()">Déplacer</button>
+        </div>
+    </div>
+
+    <div class="info">
+        <h3>À propos</h3>
+        <p>ClippyJS vous permet d'ajouter Clippy ou ses amis à votre site web !</p>
+        <p>Cliquez sur l'agent pour interagir avec lui.</p>
+        <p id="status">Chargement de Clippy...</p>
+    </div>
+
+    <!-- jQuery (requis par ClippyJS) -->
+    <script src="https://unpkg.com/jquery@3.2.1"></script>
+
+    <!-- ClippyJS depuis CDN -->
+    <script src="https://unpkg.com/clippyjs@latest"></script>
+
+    <script>
+        // Variable globale pour stocker l'agent actuel
+        let currentAgent = null;
+        let currentAgentName = 'Clippy';
+
+        // Messages aléatoires
+        const messages = [
+            "Bonjour ! Je suis là pour vous aider !",
+            "Comment puis-je vous aider aujourd'hui ?",
+            "C'est une belle journée pour coder !",
+            "N'oubliez pas de sauvegarder votre travail !",
+            "Besoin d'aide ? Je suis à votre service !",
+            "Avez-vous essayé de redémarrer votre ordinateur ?",
+            "Je vois que vous travaillez dur !",
+            "Prenez une pause, vous le méritez !"
+        ];
+
+        // Charger Clippy par défaut au démarrage
+        function loadAgent(agentName) {
+            document.getElementById('status').textContent = `Chargement de ${agentName}...`;
+
+            // Détruire l'agent précédent si il existe
+            if (currentAgent) {
+                currentAgent.hide();
+            }
+
+            clippy.load(agentName, function(agent) {
+                currentAgent = agent;
+                currentAgentName = agentName;
+
+                // Afficher l'agent
+                agent.show();
+
+                // Position initiale
+                agent.moveTo(200, 200);
+
+                // Message de bienvenue
+                agent.speak(`Salut ! Je suis ${agentName} !`);
+
+                // Animation de bienvenue
+                agent.animate();
+
+                // Mise à jour du statut
+                document.getElementById('status').textContent = `${agentName} est chargé et prêt !`;
+
+                // Permettre de cliquer sur l'agent
+                $(agent._el).click(function() {
+                    agent.speak(messages[Math.floor(Math.random() * messages.length)]);
+                    agent.animate();
+                });
+            }, function(err) {
+                document.getElementById('status').textContent = `Erreur lors du chargement de ${agentName}: ` + err;
+            });
+        }
+
+        function loadSelectedAgent() {
+            const select = document.getElementById('agent-select');
+            const agentName = select.value;
+            loadAgent(agentName);
+        }
+
+        function showAgent() {
+            if (currentAgent) {
+                currentAgent.show();
+            }
+        }
+
+        function hideAgent() {
+            if (currentAgent) {
+                currentAgent.hide();
+            }
+        }
+
+        function speakAgent() {
+            if (currentAgent) {
+                const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                currentAgent.speak(randomMessage);
+            }
+        }
+
+        function animateAgent() {
+            if (currentAgent) {
+                currentAgent.animate();
+            }
+        }
+
+        function moveAgent() {
+            if (currentAgent) {
+                const x = Math.random() * (window.innerWidth - 200);
+                const y = Math.random() * (window.innerHeight - 200);
+                currentAgent.moveTo(x, y);
+            }
+        }
+
+        // Charger Clippy au démarrage de la page
+        window.addEventListener('load', function() {
+            loadAgent('Clippy');
+        });
+    </script>
+</body>
+</html>

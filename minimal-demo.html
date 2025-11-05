@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClippyJS - Démo Minimale</title>
+
+    <!-- Clippy CSS -->
+    <link rel="stylesheet" type="text/css" href="https://gitcdn.xyz/repo/pi0/clippyjs/master/assets/clippy.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 50px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>ClippyJS - Exemple Minimal</h1>
+    <p>Clippy devrait apparaître dans quelques secondes...</p>
+
+    <!-- jQuery (requis) -->
+    <script src="https://unpkg.com/jquery@3.2.1"></script>
+
+    <!-- ClippyJS -->
+    <script src="https://unpkg.com/clippyjs@latest"></script>
+
+    <script>
+        // Charger et afficher Clippy
+        clippy.load('Clippy', function(agent) {
+            agent.show();
+            agent.speak('Salut ! Je suis Clippy !');
+            agent.animate();
+        });
+    </script>
+</body>
+</html>
