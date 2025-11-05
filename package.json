@@ -34,6 +34,7 @@
   ],
   "scripts": {
     "dev": "bun run server.ts",
+    "dev:python": "python3 server.py",
     "build": "bun run build.ts",
     "type-check": "tsc --noEmit",
     "test": "bun test",

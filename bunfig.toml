@@ -26,7 +26,7 @@ coverageThreshold = 0.8
 [run]
 # Runtime configuration
 bun = true
-shell = "/bin/bash"
+shell = "system"
 
 # Prefer Bun APIs over Node.js APIs
 prefer = "bun"
