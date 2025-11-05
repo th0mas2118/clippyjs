@@ -1,0 +1,42 @@
+# Bun configuration file
+# https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Production dependencies only
+production = false
+
+# Use exact versions
+exact = false
+
+# Auto install peer dependencies
+auto = true
+
+# Cache directory
+cache = "node_modules/.cache/bun"
+
+[install.scopes]
+# Add any scoped registries here if needed
+
+[test]
+# Test configuration
+preload = []
+coverage = true
+coverageThreshold = 0.8
+
+[run]
+# Runtime configuration
+bun = true
+shell = "/bin/bash"
+
+# Prefer Bun APIs over Node.js APIs
+prefer = "bun"
+
+[build]
+# Default build settings
+target = "browser"
+format = "esm"
+minify = true
+sourcemap = "external"
+
+# External packages (not bundled)
+external = ["vue"]

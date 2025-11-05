@@ -1,5 +1,33 @@
+# IDE
 .idea
 *.iml
+.vscode/
+*.swp
+*.swo
+
+# Logs
 *.log*
+
+# Build
 /dist
-node_modules
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+
+# Bun
+bun.lockb
+.bun/
+
+# Testing
+coverage/
+.nyc_output
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
