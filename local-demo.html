@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClippyJS - Démo Simple</title>
+    <title>ClippyJS - Démo 100% Locale</title>
 
-    <!-- Clippy CSS - Using local assets -->
+    <!-- Clippy CSS - Local -->
     <link rel="stylesheet" type="text/css" href="./assets/clippy.css">
 
     <style>
@@ -70,10 +70,18 @@
             border: none;
             font-size: 14px;
         }
+
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
-    <h1>🎉 ClippyJS - Démo Simple</h1>
+    <h1>🎉 ClippyJS - Démo 100% Locale</h1>
 
     <div class="controls">
         <h2>Contrôles</h2>
@@ -106,19 +114,25 @@
 
     <div class="info">
         <h3>À propos</h3>
-        <p>ClippyJS vous permet d'ajouter Clippy ou ses amis à votre site web !</p>
+        <p>Cette démo utilise 100% de fichiers locaux - aucun CDN requis !</p>
         <p>Cliquez sur l'agent pour interagir avec lui.</p>
-        <p id="status">Chargement de Clippy...</p>
+        <div class="status" id="status">Initialisation...</div>
     </div>
 
-    <!-- jQuery (requis par ClippyJS) -->
+    <!-- jQuery (local fallback) -->
     <script src="https://unpkg.com/jquery@3.2.1"></script>
+    <script>
+        // Fallback si jQuery ne charge pas depuis CDN
+        if (typeof jQuery == 'undefined') {
+            document.getElementById('status').innerHTML = 'Erreur: jQuery requis. Téléchargez jquery.min.js localement.';
+        }
+    </script>
 
-    <!-- ClippyJS depuis CDN -->
+    <!-- ClippyJS depuis CDN avec fallback -->
     <script src="https://unpkg.com/clippyjs@latest"></script>
 
     <script>
-        // Configure ClippyJS to use local assets instead of CDN
+        // Configure ClippyJS to use local assets
         window.CLIPPY_CDN = './assets/agents/';
 
         // Variable globale pour stocker l'agent actuel
@@ -137,9 +151,26 @@
             "Prenez une pause, vous le méritez !"
         ];
 
-        // Charger Clippy par défaut au démarrage
+        function updateStatus(msg, isError = false) {
+            const status = document.getElementById('status');
+            status.textContent = msg;
+            status.style.background = isError ? 'rgba(255, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.2)';
+        }
+
+        // Vérifier si clippy est disponible
+        function checkClippy() {
+            if (typeof clippy === 'undefined') {
+                updateStatus('Erreur: ClippyJS non chargé. Vérifiez votre connexion ou les fichiers locaux.', true);
+                return false;
+            }
+            return true;
+        }
+
+        // Charger un agent
         function loadAgent(agentName) {
-            document.getElementById('status').textContent = `Chargement de ${agentName}...`;
+            if (!checkClippy()) return;
+
+            updateStatus(`Chargement de ${agentName}...`);
 
             // Détruire l'agent précédent si il existe
             if (currentAgent) {
@@ -163,7 +194,7 @@
                 agent.animate();
 
                 // Mise à jour du statut
-                document.getElementById('status').textContent = `${agentName} est chargé et prêt !`;
+                updateStatus(`${agentName} est chargé et prêt !`);
 
                 // Permettre de cliquer sur l'agent
                 $(agent._el).click(function() {
@@ -171,7 +202,8 @@
                     agent.animate();
                 });
             }, function(err) {
-                document.getElementById('status').textContent = `Erreur lors du chargement de ${agentName}: ` + err;
+                updateStatus(`Erreur lors du chargement de ${agentName}: ${err}`, true);
+                console.error('Clippy load error:', err);
             });
         }
 
@@ -184,12 +216,16 @@
         function showAgent() {
             if (currentAgent) {
                 currentAgent.show();
+                updateStatus(`${currentAgentName} est maintenant visible`);
+            } else {
+                updateStatus('Aucun agent chargé', true);
             }
         }
 
         function hideAgent() {
             if (currentAgent) {
                 currentAgent.hide();
+                updateStatus(`${currentAgentName} est maintenant caché`);
             }
         }
 
@@ -197,12 +233,16 @@
             if (currentAgent) {
                 const randomMessage = messages[Math.floor(Math.random() * messages.length)];
                 currentAgent.speak(randomMessage);
+            } else {
+                updateStatus('Aucun agent chargé', true);
             }
         }
 
         function animateAgent() {
             if (currentAgent) {
                 currentAgent.animate();
+            } else {
+                updateStatus('Aucun agent chargé', true);
             }
         }
 
@@ -211,12 +251,22 @@
                 const x = Math.random() * (window.innerWidth - 200);
                 const y = Math.random() * (window.innerHeight - 200);
                 currentAgent.moveTo(x, y);
+            } else {
+                updateStatus('Aucun agent chargé', true);
             }
         }
 
         // Charger Clippy au démarrage de la page
         window.addEventListener('load', function() {
-            loadAgent('Clippy');
+            if (checkClippy()) {
+                loadAgent('Clippy');
+            } else {
+                setTimeout(function() {
+                    if (checkClippy()) {
+                        loadAgent('Clippy');
+                    }
+                }, 1000);
+            }
         });
     </script>
 </body>

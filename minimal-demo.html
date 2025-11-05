@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClippyJS - Démo Minimale</title>
 
-    <!-- Clippy CSS -->
-    <link rel="stylesheet" type="text/css" href="https://gitcdn.xyz/repo/pi0/clippyjs/master/assets/clippy.css">
+    <!-- Clippy CSS - Using local assets -->
+    <link rel="stylesheet" type="text/css" href="./assets/clippy.css">
 
     <style>
         body {
@@ -30,6 +30,9 @@
     <script src="https://unpkg.com/clippyjs@latest"></script>
 
     <script>
+        // Configure ClippyJS to use local assets instead of CDN
+        window.CLIPPY_CDN = './assets/agents/';
+
         // Charger et afficher Clippy
         clippy.load('Clippy', function(agent) {
             agent.show();
