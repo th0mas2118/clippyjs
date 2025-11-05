@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClippyJS + Vue 3 - Demo</title>
+
+    <!-- Clippy CSS -->
+    <link rel="stylesheet" href="../../assets/clippy.css">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        #app {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .loading, .error {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .loading {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .control-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 12px;
+        }
+
+        .control-section h3 {
+            margin-top: 0;
+            color: #555;
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #4caf50;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.secondary {
+            background: #2196f3;
+        }
+
+        button.secondary:hover:not(:disabled) {
+            background: #0b7dda;
+        }
+
+        button.danger {
+            background: #f44336;
+        }
+
+        button.danger:hover:not(:disabled) {
+            background: #da190b;
+        }
+
+        .animations-section {
+            margin-top: 20px;
+        }
+
+        .animations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .anim-button {
+            padding: 8px 12px;
+            font-size: 12px;
+            background: #9c27b0;
+        }
+
+        .anim-button:hover:not(:disabled) {
+            background: #7b1fa2;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #263238;
+            color: #4caf50;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .info-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <h1>🎯 ClippyJS + Vue 3</h1>
+            <p class="subtitle">
+                Composable Vue 3 <span class="info-badge">v{{ Vue.version }}</span>
+            </p>
+
+            <!-- Loading state -->
+            <div v-if="isLoading" class="loading">
+                Chargement de {{ selectedAgent }}...
+            </div>
+
+            <!-- Error state -->
+            <div v-if="error" class="error">
+                ❌ Erreur : {{ error.message }}
+            </div>
+
+            <!-- Agent selector -->
+            <div class="control-section">
+                <h3>1️⃣ Sélectionner un Agent</h3>
+                <div class="form-group">
+                    <label for="agent-select">Agent :</label>
+                    <select id="agent-select" v-model="selectedAgent">
+                        <option v-for="agent in availableAgents" :key="agent.name" :value="agent.name">
+                            {{ agent.name }} - {{ agent.desc }}
+                        </option>
+                    </select>
+                </div>
+                <button @click="loadSelectedAgent" :disabled="isLoading">
+                    {{ isLoading ? 'Chargement...' : 'Charger Agent' }}
+                </button>
+            </div>
+
+            <!-- Controls -->
+            <div v-if="agent" class="control-section">
+                <h3>2️⃣ Contrôles de Base</h3>
+                <div class="button-grid">
+                    <button @click="show">👁️ Afficher</button>
+                    <button @click="hide">🙈 Cacher</button>
+                    <button @click="speakRandom" class="secondary">💬 Parler</button>
+                    <button @click="animate" class="secondary">🎭 Animer</button>
+                    <button @click="moveRandom" class="secondary">🚀 Déplacer</button>
+                    <button @click="destroy" class="danger">🗑️ Détruire</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="custom-message">Message personnalisé :</label>
+                    <input
+                        id="custom-message"
+                        type="text"
+                        v-model="customMessage"
+                        placeholder="Entrez un message..."
+                        @keyup.enter="speakCustom"
+                    />
+                </div>
+                <button @click="speakCustom">Dire ce message</button>
+            </div>
+
+            <!-- Animations -->
+            <div v-if="agent && animations.length > 0" class="control-section animations-section">
+                <h3>3️⃣ Animations ({{ animations.length }})</h3>
+                <div class="animations-grid">
+                    <button
+                        v-for="anim in animations"
+                        :key="anim"
+                        @click="play(anim)"
+                        class="anim-button"
+                    >
+                        {{ anim }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="status">
+                💡 {{ status }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue 3 from CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <!-- jQuery (required by old clippyjs) -->
+    <script src="https://unpkg.com/jquery@3.2.1"></script>
+
+    <!-- ClippyJS -->
+    <script src="https://unpkg.com/clippyjs@latest"></script>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                // Available agents
+                const availableAgents = [
+                    { name: 'Clippy', desc: 'Le trombone' },
+                    { name: 'Merlin', desc: 'Le magicien' },
+                    { name: 'Bonzi', desc: 'Le singe violet' },
+                    { name: 'F1', desc: 'Le robot' },
+                    { name: 'Genie', desc: 'Le génie' },
+                    { name: 'Genius', desc: 'Einstein' },
+                    { name: 'Links', desc: 'Le chat' },
+                    { name: 'Peedy', desc: 'Le perroquet' },
+                    { name: 'Rocky', desc: 'Le chien' },
+                    { name: 'Rover', desc: 'Le chien rouge' },
+                ];
+
+                // State
+                const agent = ref(null);
+                const isLoading = ref(false);
+                const error = ref(null);
+                const selectedAgent = ref('Clippy');
+                const customMessage = ref('Bonjour depuis Vue 3 ! 👋');
+                const status = ref('Prêt - Sélectionnez un agent et cliquez sur "Charger Agent"');
+
+                const animations = computed(() => {
+                    if (!agent.value) return [];
+                    return agent.value.animations();
+                });
+
+                // Random messages
+                const messages = [
+                    'Bonjour ! Je suis là pour vous aider ! 👋',
+                    'Vue 3 + ClippyJS = ❤️',
+                    'N\'oubliez pas de sauvegarder ! 💾',
+                    'Prenez une pause ! ☕',
+                    'Vous codez super bien ! 💪',
+                    'Besoin d\'aide ? Je suis là ! 🤗',
+                ];
+
+                // Load agent
+                const loadSelectedAgent = async () => {
+                    isLoading.value = true;
+                    error.value = null;
+                    status.value = `Chargement de ${selectedAgent.value}...`;
+
+                    try {
+                        // Destroy previous agent
+                        if (agent.value) {
+                            agent.value.stop();
+                        }
+
+                        // Load new agent
+                        await new Promise((resolve, reject) => {
+                            clippy.load(selectedAgent.value, (loadedAgent) => {
+                                agent.value = loadedAgent;
+                                resolve();
+                            }, (err) => {
+                                reject(new Error(err || 'Failed to load agent'));
+                            }, '../../assets/agents/');
+                        });
+
+                        // Show agent
+                        agent.value.show();
+                        agent.value.moveTo(200, 200);
+                        agent.value.speak(`Je suis ${selectedAgent.value} ! 👋`);
+
+                        status.value = `✅ ${selectedAgent.value} chargé avec succès !`;
+                        isLoading.value = false;
+
+                    } catch (err) {
+                        error.value = err;
+                        status.value = `❌ Erreur : ${err.message}`;
+                        isLoading.value = false;
+                    }
+                };
+
+                // Actions
+                const show = () => {
+                    if (agent.value) {
+                        agent.value.show();
+                        status.value = '👁️ Agent affiché';
+                    }
+                };
+
+                const hide = () => {
+                    if (agent.value) {
+                        agent.value.hide();
+                        status.value = '🙈 Agent caché';
+                    }
+                };
+
+                const speakRandom = () => {
+                    if (agent.value) {
+                        const msg = messages[Math.floor(Math.random() * messages.length)];
+                        agent.value.speak(msg);
+                        status.value = `💬 "${msg}"`;
+                    }
+                };
+
+                const speakCustom = () => {
+                    if (agent.value && customMessage.value) {
+                        agent.value.speak(customMessage.value);
+                        status.value = `💬 "${customMessage.value}"`;
+                    }
+                };
+
+                const animate = () => {
+                    if (agent.value) {
+                        agent.value.animate();
+                        status.value = '🎭 Animation aléatoire';
+                    }
+                };
+
+                const play = (animName) => {
+                    if (agent.value) {
+                        agent.value.play(animName);
+                        status.value = `🎬 Animation : ${animName}`;
+                    }
+                };
+
+                const moveRandom = () => {
+                    if (agent.value) {
+                        const x = Math.random() * (window.innerWidth - 200);
+                        const y = Math.random() * (window.innerHeight - 200);
+                        agent.value.moveTo(x, y);
+                        status.value = `🚀 Déplacé vers (${Math.floor(x)}, ${Math.floor(y)})`;
+                    }
+                };
+
+                const destroy = () => {
+                    if (agent.value) {
+                        agent.value.stop();
+                        agent.value.hide(true);
+                        agent.value = null;
+                        status.value = '🗑️ Agent détruit';
+                    }
+                };
+
+                // Auto-load on mount
+                onMounted(() => {
+                    loadSelectedAgent();
+                });
+
+                return {
+                    // State
+                    agent,
+                    isLoading,
+                    error,
+                    selectedAgent,
+                    customMessage,
+                    status,
+                    availableAgents,
+                    animations,
+                    // Methods
+                    loadSelectedAgent,
+                    show,
+                    hide,
+                    speakRandom,
+                    speakCustom,
+                    animate,
+                    play,
+                    moveRandom,
+                    destroy,
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

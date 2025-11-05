@@ -119,9 +119,19 @@ Bun.serve({
 
         <h2>🎨 Exemples</h2>
         <div class="demos">
+            <a href="/example/typescript">
+                <strong>Plugin TypeScript Simple</strong>
+                <div class="desc">Utilisation du ClippyPlugin sans framework</div>
+            </a>
+
+            <a href="/example/vue3">
+                <strong>Vue 3 Composable</strong>
+                <div class="desc">Exemple complet avec Vue 3</div>
+            </a>
+
             <a href="/example/vanilla">
-                <strong>Vanilla TypeScript</strong>
-                <div class="desc">Exemple avec l'API TypeScript</div>
+                <strong>Vanilla JavaScript Avancé</strong>
+                <div class="desc">Exemple avec tous les contrôles</div>
             </a>
         </div>
 
@@ -167,6 +177,18 @@ Bun.serve({
 
       if (path === '/example/vanilla') {
         return new Response(await file('./examples/vanilla/index.html').text(), {
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        });
+      }
+
+      if (path === '/example/typescript') {
+        return new Response(await file('./examples/typescript/index.html').text(), {
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        });
+      }
+
+      if (path === '/example/vue3') {
+        return new Response(await file('./examples/vue3/index.html').text(), {
           headers: { 'Content-Type': 'text/html; charset=utf-8' },
         });
       }

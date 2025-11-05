@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClippyJS - Plugin TypeScript Simple</title>
+
+    <!-- Clippy CSS -->
+    <link rel="stylesheet" href="../../assets/clippy.css">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 12px;
+        }
+
+        .demo-section h3 {
+            margin-top: 0;
+            color: #555;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        code {
+            background: #263238;
+            color: #4caf50;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 10px 0;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Plugin TypeScript Simple</h1>
+        <p class="subtitle">
+            Utilisation du ClippyPlugin sans framework
+        </p>
+
+        <!-- Demo 1 -->
+        <div class="demo-section">
+            <h3>1️⃣ Chargement basique</h3>
+            <p>Charge Clippy et le fait parler</p>
+            <div class="code-block">
+const plugin = new ClippyPlugin();<br>
+await plugin.load('Clippy');<br>
+await plugin.show();<br>
+await plugin.speak('Hello!');
+            </div>
+            <button onclick="demo1()">Tester</button>
+        </div>
+
+        <!-- Demo 2 -->
+        <div class="demo-section">
+            <h3>2️⃣ Auto-load avec config</h3>
+            <p>Charge automatiquement avec message de bienvenue</p>
+            <div class="code-block">
+const plugin = new ClippyPlugin({<br>
+&nbsp;&nbsp;autoLoad: 'Merlin',<br>
+&nbsp;&nbsp;autoShow: true,<br>
+&nbsp;&nbsp;welcomeMessage: 'Bienvenue!'<br>
+});
+            </div>
+            <button onclick="demo2()">Tester</button>
+        </div>
+
+        <!-- Demo 3 -->
+        <div class="demo-section">
+            <h3>3️⃣ Animations multiples</h3>
+            <p>Enchaîne plusieurs actions</p>
+            <div class="code-block">
+await plugin.speak('Je vais bouger!');<br>
+await plugin.moveTo(300, 300);<br>
+await plugin.animate();<br>
+await plugin.speak('Tada! 🎉');
+            </div>
+            <button onclick="demo3()">Tester</button>
+        </div>
+
+        <!-- Demo 4 -->
+        <div class="demo-section">
+            <h3>4️⃣ Tips automatiques</h3>
+            <p>Affiche des tips toutes les 10 secondes</p>
+            <div class="code-block">
+const tips = [<br>
+&nbsp;&nbsp;'Sauvegardez votre travail!',<br>
+&nbsp;&nbsp;'Prenez une pause!',<br>
+&nbsp;&nbsp;'Buvez de l\'eau!'<br>
+];<br>
+<br>
+const timerId = plugin.startRandomTips(tips, 10000);
+            </div>
+            <div class="button-grid">
+                <button onclick="demo4Start()">Démarrer Tips</button>
+                <button onclick="demo4Stop()">Arrêter Tips</button>
+            </div>
+        </div>
+
+        <!-- Demo 5 -->
+        <div class="demo-section">
+            <h3>5️⃣ Toutes les animations</h3>
+            <p>Obtenir et jouer toutes les animations</p>
+            <div class="code-block">
+const animations = plugin.getAnimations();<br>
+console.log(animations);<br>
+await plugin.play('Congratulate');
+            </div>
+            <button onclick="demo5()">Afficher animations</button>
+        </div>
+
+        <!-- Status -->
+        <div class="status" id="status">
+            💡 Prêt - Cliquez sur un bouton pour tester !
+        </div>
+    </div>
+
+    <!-- jQuery (required) -->
+    <script src="https://unpkg.com/jquery@3.2.1"></script>
+
+    <!-- ClippyJS -->
+    <script src="https://unpkg.com/clippyjs@latest"></script>
+
+    <script>
+        // Simple ClippyPlugin wrapper (simulating the TypeScript plugin)
+        class ClippyPlugin {
+            constructor(config = {}) {
+                this.agent = null;
+                this.config = config;
+                this.tipsInterval = null;
+
+                if (config.autoLoad) {
+                    this.initialize();
+                }
+            }
+
+            async initialize() {
+                await this.load(this.config.autoLoad);
+                if (this.config.autoShow) {
+                    await this.show();
+                }
+                if (this.config.welcomeMessage) {
+                    await this.speak(this.config.welcomeMessage);
+                }
+            }
+
+            async load(name, config = {}) {
+                const basePath = config.basePath || '../../assets/agents/';
+
+                return new Promise((resolve, reject) => {
+                    clippy.load(name, (agent) => {
+                        this.agent = agent;
+                        updateStatus(`✅ ${name} chargé !`);
+                        resolve(agent);
+                    }, (err) => {
+                        updateStatus(`❌ Erreur : ${err}`, true);
+                        reject(err);
+                    }, basePath);
+                });
+            }
+
+            async show() {
+                if (!this.agent) throw new Error('Agent not loaded');
+                this.agent.show();
+                updateStatus('👁️ Agent affiché');
+            }
+
+            async hide() {
+                if (!this.agent) throw new Error('Agent not loaded');
+                this.agent.hide();
+                updateStatus('🙈 Agent caché');
+            }
+
+            async speak(text, autoHide) {
+                if (!this.agent) throw new Error('Agent not loaded');
+                this.agent.speak(text, autoHide);
+                updateStatus(`💬 "${text}"`);
+            }
+
+            async animate() {
+                if (!this.agent) throw new Error('Agent not loaded');
+                this.agent.animate();
+                updateStatus('🎭 Animation aléatoire');
+            }
+
+            async play(animationName) {
+                if (!this.agent) throw new Error('Agent not loaded');
+                this.agent.play(animationName);
+                updateStatus(`🎬 Animation : ${animationName}`);
+            }
+
+            async moveTo(x, y, duration) {
+                if (!this.agent) throw new Error('Agent not loaded');
+                this.agent.moveTo(x, y, duration);
+                updateStatus(`🚀 Déplacé vers (${x}, ${y})`);
+            }
+
+            getAnimations() {
+                if (!this.agent) return [];
+                return this.agent.animations();
+            }
+
+            startRandomTips(tips, intervalMs = 30000) {
+                this.tipsInterval = setInterval(() => {
+                    if (this.agent) {
+                        const tip = tips[Math.floor(Math.random() * tips.length)];
+                        this.speak(tip);
+                        this.animate();
+                    }
+                }, intervalMs);
+
+                updateStatus(`⏰ Tips automatiques démarrés (toutes les ${intervalMs/1000}s)`);
+                return this.tipsInterval;
+            }
+
+            stopRandomTips() {
+                if (this.tipsInterval) {
+                    clearInterval(this.tipsInterval);
+                    this.tipsInterval = null;
+                    updateStatus('⏸️ Tips automatiques arrêtés');
+                }
+            }
+        }
+
+        // Helper
+        function updateStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.textContent = (isError ? '❌ ' : '💡 ') + message;
+            status.style.background = isError ? '#ffebee' : '#e3f2fd';
+            status.style.color = isError ? '#c62828' : '#1976d2';
+        }
+
+        // Global plugin instance
+        let globalPlugin = null;
+        let tipsTimer = null;
+
+        // Demos
+        async function demo1() {
+            try {
+                updateStatus('Chargement de Clippy...');
+                const plugin = new ClippyPlugin();
+                await plugin.load('Clippy');
+                await plugin.show();
+                await plugin.speak('Hello! Je suis Clippy! 👋');
+                globalPlugin = plugin;
+            } catch (err) {
+                updateStatus('Erreur : ' + err, true);
+            }
+        }
+
+        async function demo2() {
+            try {
+                updateStatus('Chargement de Merlin...');
+                globalPlugin = new ClippyPlugin({
+                    autoLoad: 'Merlin',
+                    autoShow: true,
+                    welcomeMessage: 'Bienvenue jeune padawan! 🧙‍♂️'
+                });
+            } catch (err) {
+                updateStatus('Erreur : ' + err, true);
+            }
+        }
+
+        async function demo3() {
+            if (!globalPlugin || !globalPlugin.agent) {
+                updateStatus('Chargez d\'abord un agent (Demo 1 ou 2)', true);
+                return;
+            }
+
+            try {
+                await globalPlugin.speak('Je vais me déplacer!');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                await globalPlugin.moveTo(300, 300);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                await globalPlugin.animate();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                await globalPlugin.speak('Tada! 🎉');
+            } catch (err) {
+                updateStatus('Erreur : ' + err, true);
+            }
+        }
+
+        function demo4Start() {
+            if (!globalPlugin || !globalPlugin.agent) {
+                updateStatus('Chargez d\'abord un agent (Demo 1 ou 2)', true);
+                return;
+            }
+
+            const tips = [
+                '💾 Sauvegardez votre travail!',
+                '☕ Prenez une pause!',
+                '💧 Buvez de l\'eau!',
+                '👀 Reposez vos yeux!',
+                '🎯 Restez concentré!'
+            ];
+
+            tipsTimer = globalPlugin.startRandomTips(tips, 10000);
+        }
+
+        function demo4Stop() {
+            if (globalPlugin) {
+                globalPlugin.stopRandomTips();
+            }
+        }
+
+        async function demo5() {
+            if (!globalPlugin || !globalPlugin.agent) {
+                updateStatus('Chargez d\'abord un agent (Demo 1 ou 2)', true);
+                return;
+            }
+
+            const animations = globalPlugin.getAnimations();
+            console.log('Animations disponibles:', animations);
+            updateStatus(`📋 ${animations.length} animations - Voir la console`);
+
+            // Play a random one
+            const random = animations[Math.floor(Math.random() * animations.length)];
+            await globalPlugin.play(random);
+        }
+    </script>
+</body>
+</html>
