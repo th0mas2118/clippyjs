@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clippy Demo</title>
+    <!-- Clippy CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/clippy.css">
+</head>
+<body>
+    <h1>Bienvenue sur la page Clippy!</h1>
+    <p>Clippy devrait apparaître dans quelques instants...</p>
+
+    <!-- jQuery (requis pour Clippy) -->
+    <script src="https://unpkg.com/jquery@3.2.1"></script>
+
+    <!-- Clippy JS (version locale) -->
+    <script src="dist/clippy.js"></script>
+
+    <!-- Initialisation de Clippy -->
+    <script type="text/javascript">
+        // Configurer le CDN local pour charger les agents
+        window.CLIPPY_CDN = './assets/agents/';
+
+        // Charger Clippy
+        clippy.load('Clippy', function(agent) {
+            // Afficher l'agent
+            agent.show();
+
+            // Faire parler Clippy
+            agent.speak('Bonjour ! Je suis Clippy, votre assistant virtuel. Comment puis-je vous aider aujourd\'hui ?');
+
+            // Jouer une animation
+            agent.play('Greeting');
+        });
+    </script>
+</body>
+</html>
